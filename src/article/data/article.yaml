@@ -1,0 +1,88 @@
+version: "1.0.0"
+name: "The Article Charter"
+description: >
+  A machine-readable set of engineering principles intended to outlast any
+  single framework, language, or model generation. Each principle maps to a
+  concrete, automatable check so that "good values" stay verifiable rather
+  than aspirational.
+
+principles:
+  - id: transparency
+    title: "Transparency"
+    statement: >
+      A project explains what it does, how to use it, and what it does not
+      do, in language a newcomer can follow without reading the source.
+    check: transparency
+    weight: 1
+
+  - id: licensing_hygiene
+    title: "Licensing Hygiene"
+    statement: >
+      Every project states, in an unambiguous and OSI-recognizable way, the
+      terms under which it may be used, modified, and redistributed.
+    check: licensing_hygiene
+    weight: 1
+
+  - id: security_by_default
+    title: "Security by Default"
+    statement: >
+      Secrets are never committed to source control, and there is a clear,
+      documented channel for reporting vulnerabilities responsibly.
+    check: security_by_default
+    weight: 1
+
+  - id: privacy_and_data_respect
+    title: "Privacy & Data Respect"
+    statement: >
+      If a project collects or processes personal data, it says so plainly
+      and documents what is collected and why.
+    check: privacy_and_data_respect
+    weight: 1
+
+  - id: human_oversight_for_ai
+    title: "Human Oversight for AI"
+    statement: >
+      Projects that generate content or decisions with AI/ML disclose that
+      fact and document where a human is expected to review the output.
+    check: human_oversight_for_ai
+    weight: 1
+
+  - id: accessibility
+    title: "Accessibility"
+    statement: >
+      User-facing interfaces are usable by people using assistive
+      technology: images carry alt text, pages declare a language.
+    check: accessibility
+    weight: 1
+
+  - id: testing_and_maintainability
+    title: "Testing & Maintainability"
+    statement: >
+      A project proves its own correctness with automated tests, and proves
+      it keeps proving it with continuous integration.
+    check: testing_and_maintainability
+    weight: 1
+
+  - id: inclusive_community
+    title: "Inclusive Community"
+    statement: >
+      Contribution is welcomed on documented terms, and community behavior
+      is governed by a code of conduct rather than left to chance.
+    check: inclusive_community
+    weight: 1
+
+  - id: dependency_integrity
+    title: "Dependency Integrity"
+    statement: >
+      Dependencies are declared with reproducible, pinned versions rather
+      than open-ended ranges that silently drift over time.
+    check: dependency_integrity
+    weight: 1
+
+  - id: sustainability_longevity
+    title: "Sustainability & Longevity"
+    statement: >
+      Changes are recorded as they happen, so that a project's history
+      remains legible to maintainers who join after its authors leave.
+    check: sustainability_longevity
+    weight: 1

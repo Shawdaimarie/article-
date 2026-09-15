@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Article — Compliance Dashboard</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { display: flex; align-items: center; gap: 0.5rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #8884; }
+    .score { font-variant-numeric: tabular-nums; font-weight: 600; }
+    .score.high { color: #2e7d32; }
+    .score.mid { color: #b26a00; }
+    .score.low { color: #c62828; }
+    #filter { margin-top: 1rem; padding: 0.4rem; }
+    #empty { opacity: 0.7; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="24" height="24" rx="5" fill="currentColor" opacity="0.15" />
+      <path d="M7 8h10M7 12h10M7 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    Article — Compliance Dashboard
+  </h1>
+  <p>Recent charter-compliance runs reported by the <code>article</code> CLI.</p>
+  <input id="filter" type="text" placeholder="Filter by project name…" />
+  <table id="runs-table" hidden>
+    <thead>
+      <tr><th>Project</th><th>Score</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>When</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p id="empty">Loading recent runs…</p>
+
+  <script>
+    function scoreClass(score) {
+      if (score >= 90) return "high";
+      if (score >= 70) return "mid";
+      return "low";
+    }
+
+    async function loadRuns(project) {
+      const url = new URL("/runs", window.location.origin);
+      if (project) url.searchParams.set("project_name", project);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Failed to load runs: " + res.status);
+      return res.json();
+    }
+
+    function render(runs) {
+      const table = document.getElementById("runs-table");
+      const empty = document.getElementById("empty");
+      const tbody = table.querySelector("tbody");
+      tbody.innerHTML = "";
+
+      if (!runs.length) {
+        table.hidden = true;
+        empty.hidden = false;
+        empty.textContent = "No runs reported yet. Run `article check . --report-url <this-url>` to send one.";
+        return;
+      }
+
+      table.hidden = false;
+      empty.hidden = true;
+      for (const run of runs) {
+        const tr = document.createElement("tr");
+        const when = new Date(run.created_at).toLocaleString();
+        tr.innerHTML = `
+          <td>${run.project_name}</td>
+          <td class="score ${scoreClass(run.score)}">${run.score}</td>
+          <td>${run.passed}</td>
+          <td>${run.failed}</td>
+          <td>${run.skipped}</td>
+          <td>${when}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    async function refresh(project) {
+      try {
+        render(await loadRuns(project));
+      } catch (err) {
+        document.getElementById("empty").textContent = "Could not load runs: " + err.message;
+        document.getElementById("empty").hidden = false;
+      }
+    }
+
+    document.getElementById("filter").addEventListener("input", (e) => refresh(e.target.value.trim()));
+    refresh();
+  </script>
+</body>
+</html>
