@@ -28,7 +28,7 @@ api = [
     "fastapi==0.162.2",
     "uvicorn[standard]==0.30.1",
     "sqlalchemy==2.0.30",
-    "psycopg2-binary==2.9.9",
+    "psycopg2-binary==2.9.11",
     "pydantic==2.14.3",
 ]
 dev = [
