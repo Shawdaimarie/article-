@@ -1,8 +1,9 @@
+import os
+import secrets
 from pathlib import Path
 from typing import Optional
 
-from fastapi import Depends, FastAPI, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Depends, FastAPI, HTTPException, Query, Header
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
@@ -19,12 +20,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["GET", "POST"],
-    allow_headers=["*"],
-)
+def require_token(authorization: Optional[str] = Header(default=None)):
+    expected = os.environ.get("ARTICLE_API_TOKEN", "")
+    if len(expected) < 32:
+        raise HTTPException(status_code=503, detail="Configure ARTICLE_API_TOKEN (at least 32 characters)")
+    if not authorization or not secrets.compare_digest(authorization, "Bearer " + expected):
+        raise HTTPException(status_code=401, detail="Valid bearer token required")
+
 
 STATIC_DIR = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -40,7 +42,7 @@ def dashboard():
     return FileResponse(STATIC_DIR / "index.html")
 
 
-@app.post("/runs", response_model=RunOut, status_code=201)
+@app.post("/runs", response_model=RunOut, status_code=201, dependencies=[Depends(require_token)])
 def create_run(run_in: RunCreate, db: Session = Depends(get_db)):
     run = Run(
         project_name=run_in.project_name,
@@ -58,10 +60,10 @@ def create_run(run_in: RunCreate, db: Session = Depends(get_db)):
     return run
 
 
-@app.get("/runs", response_model=list[RunOut])
+@app.get("/runs", response_model=list[RunOut], dependencies=[Depends(require_token)])
 def list_runs(
     project_name: Optional[str] = Query(default=None),
-    limit: int = Query(default=50, le=200),
+    limit: int = Query(default=50, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
     query = db.query(Run).order_by(Run.created_at.desc())
@@ -70,7 +72,7 @@ def list_runs(
     return query.limit(limit).all()
 
 
-@app.get("/runs/{run_id}", response_model=RunOut)
+@app.get("/runs/{run_id}", response_model=RunOut, dependencies=[Depends(require_token)])
 def get_run(run_id: int, db: Session = Depends(get_db)):
     run = db.get(Run, run_id)
     if run is None:

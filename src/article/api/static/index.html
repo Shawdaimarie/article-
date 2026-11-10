@@ -8,6 +8,8 @@
     :root { color-scheme: light dark; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
     h1 { display: flex; align-items: center; gap: 0.5rem; }
+    .table-scroll { max-width: 100%; overflow-x: auto; }
+    td { overflow-wrap: anywhere; }
     table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
     th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #8884; }
     .score { font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -27,13 +29,17 @@
     Article — Compliance Dashboard
   </h1>
   <p>Recent charter-compliance runs reported by the <code>article</code> CLI.</p>
+  <label for="api-token">API access token</label> <input id="api-token" type="password" autocomplete="off" /> <button id="connect">Load runs</button>
+  <label for="filter">Project name</label>
   <input id="filter" type="text" placeholder="Filter by project name…" />
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Run history table">
   <table id="runs-table" hidden>
     <thead>
       <tr><th>Project</th><th>Score</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>When</th></tr>
     </thead>
     <tbody></tbody>
   </table>
+  </div>
   <p id="empty">Loading recent runs…</p>
 
   <script>
@@ -46,7 +52,7 @@
     async function loadRuns(project) {
       const url = new URL("/runs", window.location.origin);
       if (project) url.searchParams.set("project_name", project);
-      const res = await fetch(url);
+      const res = await fetch(url, {headers: {Authorization: "Bearer " + document.getElementById("api-token").value}});
       if (!res.ok) throw new Error("Failed to load runs: " + res.status);
       return res.json();
     }
@@ -69,14 +75,11 @@
       for (const run of runs) {
         const tr = document.createElement("tr");
         const when = new Date(run.created_at).toLocaleString();
-        tr.innerHTML = `
-          <td>${run.project_name}</td>
-          <td class="score ${scoreClass(run.score)}">${run.score}</td>
-          <td>${run.passed}</td>
-          <td>${run.failed}</td>
-          <td>${run.skipped}</td>
-          <td>${when}</td>
-        `;
+        [run.project_name, run.score, run.passed, run.failed, run.skipped, when].forEach((value, i) => {
+          const td = document.createElement('td'); td.textContent = String(value);
+          if (i === 1) td.className = 'score ' + scoreClass(run.score);
+          tr.appendChild(td);
+        });
         tbody.appendChild(tr);
       }
     }
@@ -91,7 +94,8 @@
     }
 
     document.getElementById("filter").addEventListener("input", (e) => refresh(e.target.value.trim()));
-    refresh();
+    document.getElementById("connect").addEventListener("click", () => refresh());
+    document.getElementById("empty").textContent = "Enter your access token to load runs.";
   </script>
 </body>
 </html>

@@ -126,3 +126,7 @@ Contributions are welcome — see [`CONTRIBUTING.md`](CONTRIBUTING.md) and the
 ## License
 
 [MIT](LICENSE) — see the license file for the full text.
+
+## Local review — November 2026
+
+API history now requires ARTICLE_API_TOKEN (at least 32 characters). Set the same value as the CLI report API key; the dashboard accepts it in a password field and retains it only in memory. Use HTTPS behind a production gateway. Python 3.11+ is required. Scores must be finite and between 0 and 100, counts nonnegative, and list limits between 1 and 200.

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools==69.5.1"]
+requires = ["setuptools==84.1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,7 @@ description = "A governance and eval engine that checks a project against a mach
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Shawdaimarie" }]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -20,20 +20,20 @@ dependencies = [
     "click==8.1.7",
     "pyyaml==6.0.1",
     "rich==13.7.1",
-    "requests==2.32.3",
+    "requests==2.34.2",
 ]
 
 [project.optional-dependencies]
 api = [
-    "fastapi==0.111.0",
+    "fastapi==0.162.2",
     "uvicorn[standard]==0.30.1",
     "sqlalchemy==2.0.30",
     "psycopg2-binary==2.9.9",
-    "pydantic==2.7.1",
+    "pydantic==2.14.3",
 ]
 dev = [
-    "pytest==8.2.1",
-    "httpx==0.27.0",
+    "pytest==9.2.0",
+    "httpx==0.28.1",
 ]
 
 [project.scripts]

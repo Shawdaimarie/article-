@@ -2,7 +2,16 @@ from fastapi.testclient import TestClient
 
 from article.api.main import app
 
-client = TestClient(app)
+import os
+import pytest
+
+TEST_TOKEN = "local-test-token-" + "x" * 32
+
+@pytest.fixture(autouse=True)
+def api_token(monkeypatch):
+    monkeypatch.setenv("ARTICLE_API_TOKEN", TEST_TOKEN)
+
+client = TestClient(app, headers={"Authorization": "Bearer " + TEST_TOKEN})
 
 SAMPLE_RUN = {
     "project_name": "demo-project",
@@ -60,3 +69,19 @@ def test_get_missing_run_returns_404():
 def test_create_run_rejects_missing_fields():
     resp = client.post("/runs", json={"project_name": "incomplete"})
     assert resp.status_code == 422
+
+@pytest.mark.parametrize("limit", [-1, 0, 201])
+def test_rejects_invalid_page_size(limit):
+    assert client.get("/runs", params={"limit": limit}).status_code == 422
+
+@pytest.mark.parametrize("field,value", [("score", -1), ("score", 101), ("passed", -1), ("failed", -1), ("skipped", -1)])
+def test_rejects_invalid_metrics(field, value):
+    assert client.post("/runs", json={**SAMPLE_RUN, field: value}).status_code == 422
+
+def test_token_boundary(monkeypatch):
+    anonymous = TestClient(app)
+    assert anonymous.get("/runs").status_code == 401
+    assert anonymous.post("/runs", json=SAMPLE_RUN).status_code == 401
+    assert anonymous.get("/health").status_code == 200
+    monkeypatch.delenv("ARTICLE_API_TOKEN")
+    assert client.get("/runs").status_code == 503

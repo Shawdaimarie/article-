@@ -8,17 +8,17 @@ class CheckResultOut(BaseModel):
     title: str
     status: str
     message: str
-    weight: int = 1
+    weight: int = Field(default=1, ge=0)
 
 
 class RunCreate(BaseModel):
     project_name: str = Field(min_length=1, max_length=255)
-    charter_name: str
-    charter_version: str
-    score: float
-    passed: int
-    failed: int
-    skipped: int
+    charter_name: str = Field(min_length=1, max_length=255)
+    charter_version: str = Field(min_length=1, max_length=100)
+    score: float = Field(ge=0, le=100, allow_inf_nan=False)
+    passed: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    skipped: int = Field(ge=0)
     results: list[CheckResultOut]
 
 
@@ -27,11 +27,11 @@ class RunOut(BaseModel):
 
     id: int
     project_name: str
-    charter_name: str
-    charter_version: str
-    score: float
-    passed: int
-    failed: int
-    skipped: int
+    charter_name: str = Field(min_length=1, max_length=255)
+    charter_version: str = Field(min_length=1, max_length=100)
+    score: float = Field(ge=0, le=100, allow_inf_nan=False)
+    passed: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    skipped: int = Field(ge=0)
     results: list[CheckResultOut]
     created_at: datetime
