@@ -75,7 +75,7 @@ rich==13.7.1
     # via article-cli (work/repos/article-/pyproject.toml)
 setuptools==84.1.0
     # via article-cli (work/repos/article-/pyproject.toml)
-sqlalchemy==2.0.30
+sqlalchemy==2.0.57
     # via article-cli (work/repos/article-/pyproject.toml)
 starlette==1.10.0
     # via fastapi
